@@ -10,7 +10,7 @@ import Profile from "./Profile";
 function Chats() {
   const store: StateType = useStore();
   return (
-    <div className="chat-wrapper">
+    <>
       {/* <div className="chatbox">
         <div className="container">
           <div className="chat-info">
@@ -118,7 +118,7 @@ function Chats() {
           <p>Start building your network by searching and adding new chats.</p>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

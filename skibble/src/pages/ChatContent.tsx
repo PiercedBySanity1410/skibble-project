@@ -110,13 +110,7 @@ function ChatContent() {
         <div className="content-area">
           <div className="message-box from">
             <div className="content">
-              <div className="image-wrapper">
-                <img src="/assets/avatars/Alec Whitten.jpg" alt="Avatar" />
-              </div>
               <div className="message-wrapper">
-                <div className="message-info">
-                  Alec <span>1d</span>
-                </div>
                 <div className="message-wrapper-content">
                   <div className="message-text">
                     <div className="text-content corner">

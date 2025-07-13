@@ -40,7 +40,7 @@ def search():
                 if user.get('userId') == current_user_id:
                     continue
 
-                user_values = " ".join(str(value).lower() for value in user.values())
+                user_values = f'{user['username']}{user['firstName']}{user['lastName']}'
                 if all(term in user_values for term in search_terms):
                     user_list.append(user_data(user))
             except json.JSONDecodeError:

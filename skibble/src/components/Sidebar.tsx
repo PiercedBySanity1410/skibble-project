@@ -44,16 +44,21 @@ function Sidebar() {
             setSearch(e.target.value);
           }}
         />
-        {search === "" ? (
-          <Chats />
-        ) : (
-          <UserSearch onClick={()=>{
-            if(inputRef.current){
-              inputRef.current.value="";
-            }
-            setSearch("");
-          }} keyword={search} />
-        )}
+        <div className="chat-wrapper">
+          {search === "" ? (
+            <Chats />
+          ) : (
+            <UserSearch
+              onClick={() => {
+                if (inputRef.current) {
+                  inputRef.current.value = "";
+                }
+                setSearch("");
+              }}
+              keyword={search}
+            />
+          )}
+        </div>
       </div>
     </>
   );

@@ -52,7 +52,7 @@ function UserSearch({
   }, [keyword, store]);
 
   return (
-    <div className="chat-wrapper">
+    <>
       {userlist.map((item: UserInfo) => (
         <div
           className="chatbox"
@@ -85,7 +85,7 @@ function UserSearch({
           <h1>No User Found</h1>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
