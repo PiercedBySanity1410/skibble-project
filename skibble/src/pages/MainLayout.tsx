@@ -1,13 +1,12 @@
 import { Outlet } from "react-router";
-// import Sidebar from "../components/Sidebar";
-// import { StoreProvider } from "../appState/store";
+import Sidebar from "../components/Sidebar";
+import { StoreProvider } from "../appState/store";
 function MainLayout() {
   return (
-    // <StoreProvider>
-    //   <Sidebar />
-    //   <Outlet />
-    // </StoreProvider>
-    <Outlet />
+    <StoreProvider>
+      <Sidebar />
+      <Outlet />
+    </StoreProvider>
   );
 }
 

@@ -10,7 +10,7 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import MainLayout from "./pages/MainLayout";
 import Welcome from "./pages/Welcome";
-// import ChatArea from "./pages/ChatArea";
+import ChatArea from "./pages/ChatArea";
 import NotFoundPage from "./pages/NotFoundPage";
 import ResolveInitialElement from "./guards/ResolveInitialElement";
 
@@ -43,7 +43,7 @@ function AppRoutes() {
         <Route element={<AuthGuard />}>
           <Route path="/chat" element={<MainLayout />}>
             <Route index element={<Welcome />} />
-            <Route path=":userid" element={<Welcome />} />
+            <Route path=":userId" element={<ChatArea />} />
           </Route>
         </Route>
 
