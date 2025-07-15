@@ -9,7 +9,6 @@ import React, {
 import { reducer } from "./reducer";
 import { type StateType, type ActionType } from "./types";
 import SocketManager from "../SocketManager";
-
 const StateContext = createContext<StateType | undefined>(undefined);
 const DispatchContext = createContext<Dispatch<ActionType> | undefined>(
   undefined
@@ -25,33 +24,45 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
 
   const sessionUserJson = JSON.parse(sessionUser);
 
-  const [state, dispatch] = useReducer(reducer, {
-    ...sessionUserJson,
-    chats: {},
-  });
-
   // Ensure localStorage is initialized with chats
   const existingUserData = JSON.parse(
-    localStorage.getItem(sessionUserJson.userId) || "{}"
+    localStorage.getItem(sessionUserJson.userId) || `{"chats":{}}`
   );
+
+  const [state, dispatch] = useReducer(reducer, {
+    ...sessionUserJson,
+    chats: existingUserData.chats,
+    currentChat: {
+      userId: "",
+      username: "---",
+      avatarUrl: "",
+      firstName: "--",
+      lastName: "--",
+      isOnline: false,
+      isTyping: false,
+      lastSeen: "",
+    },
+  });
 
   localStorage.setItem(
     sessionUserJson.userId,
-    JSON.stringify({
-      chats: existingUserData.chats || {},
-    })
+    JSON.stringify(existingUserData)
   );
   SocketManager.init(sessionUserJson.accessToken);
   const socket = SocketManager.get();
   if (!socket) return null;
   useEffect(() => {
-    socket.on("updateFromLog", (log: any) => {
-      console.log("message from ", log);
+    socket.emit("chats:add", {
+      accessToken: sessionUserJson.accessToken,
+      list: Object.keys(existingUserData.chats),
+    });
+    socket.on("updateFromLog", (action: ActionType) => {
+      dispatch(action);
     });
     return () => {
       socket.off("updateFromLog");
     };
-  }, [socket]);
+  }, []);
 
   return (
     <StateContext.Provider value={state}>

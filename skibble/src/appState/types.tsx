@@ -5,6 +5,7 @@ export interface ChatUser {
   firstName: string;
   lastName: string;
   isOnline: boolean;
+  isTyping: string;
   lastSeen: string;
 }
 export interface StateType {
@@ -15,6 +16,14 @@ export interface StateType {
   lastName: string;
   chats: { [key: string]: ChatUser };
   accessToken: string;
+  currentChat: ChatUser;
 }
 
-export type ActionType = { type: "chat:update:add"; payload: ChatUser }; // Example for fetched count
+export type ActionType =
+  | { type: "currentChat:update"; chat: ChatUser }
+  | { type: "chat:update:add"; chat: ChatUser }
+  | {
+      type: "chat:update:offline" | "chat:update:online";
+      timestamp: string;
+      userId: string;
+    };

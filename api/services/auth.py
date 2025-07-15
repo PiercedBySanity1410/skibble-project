@@ -1,8 +1,6 @@
 import json
-import os
-
-USER_DB_FILE = 'usersDB.log'
-
+from services.config import USER_DB_FILE
+from services.time import get_iso_time
 def set_user(user_id, username, first, last, hashed_password, profileurl):
     user_data = {
         'userId': user_id,
@@ -11,7 +9,7 @@ def set_user(user_id, username, first, last, hashed_password, profileurl):
         'lastName': last,
         'passwordHash': hashed_password,
         'avatarUrl': profileurl,
-        'lastSeen':"",
+        'lastSeen': get_iso_time(),
     }
     try:
         with open(USER_DB_FILE, 'a') as f:

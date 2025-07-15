@@ -1,12 +1,11 @@
 import json
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
+from services.config import USER_DB_FILE
 from services import get_user_by_id
 from services.socket import user_id_to_session_id
 
 user_bp = Blueprint('user', __name__)
-USER_DB_FILE = 'usersDB.log'
 
 
 def user_data(user):
@@ -54,10 +53,10 @@ def searchbyid():
     data = request.get_json()
     user_id = data.get('userId')
     if not user_id:
-        return jsonify({'success': False, 'payload': None}), 400
+        return jsonify({'success': False, 'data': None}), 400
 
     user = get_user_by_id(user_id)
     if not user:
-        return jsonify({'success': False, 'payload': None}), 422
+        return jsonify({'success': False, 'data': None}), 422
 
-    return jsonify({'success': True, 'payload': user_data(user)}), 200
+    return jsonify({'success': True, 'data': user_data(user)}), 200
