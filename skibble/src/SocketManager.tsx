@@ -6,6 +6,7 @@ class SocketManager {
   static init(accessToken: string): Socket {
     if (!this.instance) {
       this.instance = io(import.meta.env.VITE_API_BASE_URL, {
+        transports: ["websocket"],
         query: { accessToken },
       });
     }

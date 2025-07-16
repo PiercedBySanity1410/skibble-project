@@ -19,14 +19,12 @@ interface StoreProviderProps {
 }
 export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   const sessionUser = localStorage.getItem("sessionUser");
-
   if (!sessionUser) return null;
 
   const sessionUserJson = JSON.parse(sessionUser);
 
-  // Ensure localStorage is initialized with chats
   const existingUserData = JSON.parse(
-    localStorage.getItem(sessionUserJson.userId) || `{"chats":{}}`
+    localStorage.getItem(sessionUserJson.userId) || `{"chats":{},"messages":{}}`
   );
 
   const [state, dispatch] = useReducer(reducer, {
@@ -44,21 +42,21 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     },
   });
 
-  localStorage.setItem(
-    sessionUserJson.userId,
-    JSON.stringify(existingUserData)
-  );
-  SocketManager.init(sessionUserJson.accessToken);
-  const socket = SocketManager.get();
-  if (!socket) return null;
+  const socket = SocketManager.init(sessionUserJson.accessToken);
+
   useEffect(() => {
     socket.emit("chats:add", {
       accessToken: sessionUserJson.accessToken,
       list: Object.keys(existingUserData.chats),
     });
+
     socket.on("updateFromLog", (action: ActionType) => {
       dispatch(action);
     });
+    localStorage.setItem(
+      sessionUserJson.userId,
+      JSON.stringify(existingUserData)
+    );
     return () => {
       socket.off("updateFromLog");
     };

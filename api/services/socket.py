@@ -4,7 +4,7 @@ from flask import request
 import json
 from .config import USER_DB_FILE
 from services.time import get_iso_time
-socketio = SocketIO(cors_allowed_origins="*")
+socketio = SocketIO(cors_allowed_origins="*",transports=['websocket'])
 
 user_id_to_session_id = {}
 session_id_to_user_id = {}
@@ -50,34 +50,17 @@ def add_chat(socket_data):
     
 @socketio.on('updateFromLog')
 def handle_update_from_log(message_data):
-    recipient_user_id = message_data['to']
-    sender_user_id = message_data['from']
-    message_text = message_data['msg']
-    
+    recipient_user_id = message_data['receiverId']
     recipient_session_id = user_id_to_session_id.get(recipient_user_id)
-    
     if recipient_session_id:
         emit('updateFromLog', message_data, to=recipient_session_id)
-    else:
-        print("Recipient session not found:", message_data)
 
 @socketio.on('disconnect')
 def handle_disconnect():
     session_id = request.sid
     user_id = session_id_to_user_id.pop(session_id, None)
     if not user_id: return
-    lines = []
-    with open(USER_DB_FILE, 'r') as file:
-        lines = file.readlines()  # read all lines
     current_time=get_iso_time()
-    for i in range(len(lines)):
-        user_json = json.loads(lines[i])
-        if user_json['userId'] != user_id: continue
-        user_json['lastSeen'] = current_time
-        lines[i] = json.dumps(user_json) + '\n'  # update list element
-
-    with open(USER_DB_FILE, 'w') as file:
-        file.writelines(lines)
     go_offline_log={
         "type":"chat:update:offline",
         "timestamp":current_time,
@@ -86,4 +69,15 @@ def handle_disconnect():
     for uid in user_data_update_map.get(user_id, []):
         emit('updateFromLog', go_offline_log, to=user_id_to_session_id.get(uid))
     user_id_to_session_id.pop(user_id, None)
+    lines = []
+    with open(USER_DB_FILE, 'r') as file:
+        lines = file.readlines()  # read all lines
+    for i in range(len(lines)):
+        user_json = json.loads(lines[i])
+        if user_json['userId'] != user_id: continue
+        user_json['lastSeen'] = current_time
+        lines[i] = json.dumps(user_json) + '\n'  # update list element
+
+    with open(USER_DB_FILE, 'w') as file:
+        file.writelines(lines)
 

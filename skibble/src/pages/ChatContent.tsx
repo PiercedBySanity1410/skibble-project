@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import Call from "../icons/Call";
 import Document from "../icons/Document";
-import Forward from "../icons/Forward";
+// import Forward from "../icons/Forward";
 import Image from "../icons/Image";
 import Mic from "../icons/Mic";
 import Send from "../icons/Send";
@@ -12,6 +12,8 @@ import { useDispatch, useStore } from "../appState/store";
 import WelcomeScreen from "./Welcome";
 import "../styles/chatcontent.scss";
 import { useNavigate, useParams } from "react-router";
+import { v4 as uuidv4 } from "uuid";
+import type { Message } from "../appState/types";
 export function getLastSeenText(isoTime: string): string {
   if (isoTime == "") return "last seen --";
   const lastSeenDate: Date = new Date(isoTime);
@@ -65,11 +67,10 @@ function ChatContent() {
   const inputRef = useRef<HTMLInputElement>(null);
   if (!socket || !userId || !store.accessToken || !store.currentChat)
     return <WelcomeScreen />;
-  const existingUser = store.chats[userId];
   useEffect(() => {
     if (userId == store.userId) navigate("/chat");
-    if (existingUser) {
-      dispatch({ type: "currentChat:update", chat: existingUser });
+    if (store.chats[userId]) {
+      dispatch({ type: "currentChat:update", chat: store.chats[userId] });
     } else {
       (async () => {
         try {
@@ -99,110 +100,105 @@ function ChatContent() {
 
   const handleSendMessage = () => {
     if (!inputRef.current || !inputRef.current.value.trim()) return;
-    const message = inputRef.current.value.trim();
-    if (!existingUser)
+    const message: Message = {
+      content: inputRef.current.value.trim(),
+      contentType: "text",
+      timestamp: new Date().toISOString(),
+      deliveryStatus: "sent",
+    };
+    if (!store.chats[userId])
       dispatch({ type: "chat:update:add", chat: store.currentChat });
     socket.emit("updateFromLog", {
-      from: store.userId,
-      to: userId,
-      msg: message,
+      type: "chat:message:sender",
+      messageId: uuidv4(),
+      senderId: store.userId,
+      receiverId: userId,
+      message,
+    });
+    dispatch({
+      type: "chat:message:receiver",
+      messageId: uuidv4(),
+      senderId: store.userId,
+      receiverId: userId,
+      message,
     });
     inputRef.current.value = "";
   };
-  return store.currentChat && (
-    <div className="chat-content">
-      <div className="chat-header">
-        <div className="content-wrapper">
-          <div className="chat-profile">
-            <div className="chat-avatar image-wrapper">
-              {store.currentChat.avatarUrl && (
-                <img
-                  src={
-                    store.currentChat.avatarUrl
-                      ? `${import.meta.env.VITE_API_BASE_URL}/uploads/profile/${
-                          store.currentChat.avatarUrl
-                        }`
-                      : "#"
-                  }
-                  alt="Avatar"
-                />
-              )}
-            </div>
-            <div className="chat-info">
-              <div className="chat-name">{`${store.currentChat.firstName} ${store.currentChat.lastName}`}</div>
-              <div className="state-info">
-                {store.currentChat.isTyping
-                  ? "typing..."
-                  : store.currentChat.isOnline
-                  ? "online"
-                  : getLastSeenText(store.currentChat.lastSeen)}
+  return (
+    store.currentChat && (
+      <div className="chat-content">
+        <div className="chat-header">
+          <div className="content-wrapper">
+            <div className="chat-profile">
+              <div className="chat-avatar image-wrapper">
+                {store.currentChat.avatarUrl && (
+                  <img
+                    src={
+                      store.currentChat.avatarUrl
+                        ? `${
+                            import.meta.env.VITE_API_BASE_URL
+                          }/uploads/profile/${store.currentChat.avatarUrl}`
+                        : "#"
+                    }
+                    alt="Avatar"
+                  />
+                )}
               </div>
-            </div>
-          </div>
-          <div className="chat-options">
-            <Video size={18} color="var(--grey)" />
-            <Call size={18} color="var(--grey)" />
-            <Image size={18} color="var(--grey)" />
-            <Document size={18} color="var(--grey)" />
-          </div>
-        </div>
-      </div>
-
-      <div className="message-content">
-        <div className="content-area">
-          <div className="message-box from">
-            <div className="content">
-              <div className="message-wrapper">
-                <div className="message-wrapper-content">
-                  <div className="message-text">
-                    <div className="text-content corner">
-                      Hey guys! Have a great working week!
-                    </div>
-                    <Forward size={10} color="var(--grey)" />
-                  </div>
-                  <div className="message-react">
-                    <div className="reaction-wrapper">
-                      <div className="reaction">😻</div>
-                      <div className="count">2</div>
-                    </div>
-                    <div className="reaction-wrapper">
-                      <div className="reaction">🍕</div>
-                      <div className="count">4</div>
-                    </div>
-                  </div>
+              <div className="chat-info">
+                <div className="chat-name">{`${store.currentChat.firstName} ${store.currentChat.lastName}`}</div>
+                <div className="state-info">
+                  {store.currentChat.isTyping
+                    ? "typing..."
+                    : store.currentChat.isOnline
+                    ? "online"
+                    : getLastSeenText(store.currentChat.lastSeen)}
                 </div>
               </div>
             </div>
+            <div className="chat-options">
+              <Video size={18} color="var(--grey)" />
+              <Call size={18} color="var(--grey)" />
+              <Image size={18} color="var(--grey)" />
+              <Document size={18} color="var(--grey)" />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="message-input-wrapper">
-        <div className="message-input">
-          <div className="image-wrapper">
-            <img
-              src={`${import.meta.env.VITE_API_BASE_URL}/uploads/profile/${
-                store.avatarUrl
-              }`}
-              alt="Avatar"
+        <div className="message-content">
+          <div className="content-area"></div>
+        </div>
+
+        <div className="message-input-wrapper">
+          <div className="message-input">
+            <div className="image-wrapper">
+              <img
+                src={`${import.meta.env.VITE_API_BASE_URL}/uploads/profile/${
+                  store.avatarUrl
+                }`}
+                alt="Avatar"
+              />
+            </div>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Your Message"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSendMessage();
+              }}
             />
-          </div>
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Your Message"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSendMessage();
-            }}
-          />
-          <div className="options">
-            <Mic color="var(--white)" size={16} />
-            <Upload color="var(--white)" size={16} />
-            <Send color="var(--white)" size={16} onClick={handleSendMessage} />
+            <div className="options">
+              <Mic color="var(--white)" size={16} />
+              <Upload color="var(--white)" size={16} />
+              <Send
+                color="var(--white)"
+                size={16}
+                onClick={handleSendMessage}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    )
   );
 }
 
