@@ -5,7 +5,7 @@ from flask import Flask, send_from_directory, abort
 from flask_jwt_extended import JWTManager
 from socket_service import socketio
 from routes.auth_routes import auth_bp
-from routes.auth_routes import user_bp
+from routes.user_routes import user_bp
 from datetime import timedelta
 from flask_cors import CORS
 app = Flask(__name__)

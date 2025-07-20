@@ -21,33 +21,44 @@ def register_user():
         last_name = request.form.get('lastName')
         password = request.form.get('password')
         avatar_url = ''
-        
         if get_user({"username": username}):
             return jsonify({'success': False, 'exist': True}), 409
 
         uploaded_file = request.files.get('avatarImg')
         if uploaded_file:
             original_filename = secure_filename(uploaded_file.filename)
-            file_ext = uploaded_file.filename.rsplit('.', 1)[-1]
-            unique_filename = f"{uuid.uuid4().hex}.{file_ext}"
-            res = supabase.storage.from_(BUCKET_NAME).upload(
-                unique_filename, uploaded_file
-            )
-            if res is None:
+            file_ext = original_filename.rsplit('.', 1)[-1]
+            unique_filename = f"avatars/{uuid.uuid4().hex}.{file_ext}"
+            try:
+                uploaded_file.seek(0)
+                res = supabase.storage.from_(BUCKET_NAME).upload(
+                    unique_filename,
+                    uploaded_file.read()
+                )
                 avatar_url = supabase.storage.from_(BUCKET_NAME).get_public_url(unique_filename)
+
+            except Exception as e:
+                if "already exists" in str(e).lower():
+                    uploaded_file.seek(0)
+                    res = supabase.storage.from_(BUCKET_NAME).update(
+                        unique_filename,
+                        uploaded_file.read()
+                    )
+                    avatar_url = supabase.storage.from_(BUCKET_NAME).get_public_url(unique_filename)
+                else:
+                    print("Upload failed:", e)
 
         # Hash password securely
         hashed_password = generate_password_hash(password)
-        
         # Store user
         user_data = add_user(username, first_name, last_name, hashed_password, avatar_url)
         if user_data is None:
-            if avatar_url: response = supabase.storage.from_(BUCKET_NAME).remove([avatar_url])
+            if avatar_url: 
+                response = supabase.storage.from_(BUCKET_NAME).remove([avatar_url])
             return jsonify({'success': False, 'message': 'Failed to create user.'}), 500
 
         # Generate JWT access token
         access_token = create_access_token(identity=user_data['userId'])
-
         return jsonify({
             'success': True,
             'sessionUser': {
@@ -60,7 +71,7 @@ def register_user():
             }
         }), 200
 
-    except Exception as error:
+    except Exception as e:
         if avatar_url: response = supabase.storage.from_(BUCKET_NAME).remove([avatar_url])
         return jsonify({'success': False, 'message': 'An error occurred.'}), 500
 
@@ -77,7 +88,7 @@ def login_user():
         password = credentials.get('password')
 
         # Retrieve user from local DB
-        user_data = get_user(username)
+        user_data = get_user({"username":username})
         if not user_data:
             return jsonify({'success': False, 'message': 'User does not exist.'}), 401
 

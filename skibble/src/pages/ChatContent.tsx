@@ -142,9 +142,7 @@ function ChatContent() {
                   <img
                     src={
                       store.currentChat.avatarUrl
-                        ? `${
-                            import.meta.env.VITE_API_BASE_URL
-                          }/uploads/profile/${store.currentChat.avatarUrl}`
+                        ? store.currentChat.avatarUrl
                         : "#"
                     }
                     alt="Avatar"
@@ -179,9 +177,7 @@ function ChatContent() {
           <div className="message-input">
             <div className="image-wrapper">
               <img
-                src={`${import.meta.env.VITE_API_BASE_URL}/uploads/profile/${
-                  store.avatarUrl
-                }`}
+                src={store.avatarUrl}
                 alt="Avatar"
               />
             </div>

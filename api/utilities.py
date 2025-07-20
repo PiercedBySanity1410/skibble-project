@@ -14,10 +14,16 @@ def add_user(username, first, last, hashed_password, avatar_url):
             "avatarUrl": avatar_url,
             "lastSeen": get_iso_time()
         }
+
         response = supabase.table("users").insert(user_data).execute()
-        return response
-    except: 
+
+        if response.data:
+            return response.data[0]  # return inserted user
         return None
+
+    except Exception as e:
+        return None
+
 
 def get_user(filter_param: dict):
     column, value = next(iter(filter_param.items()))
@@ -25,6 +31,7 @@ def get_user(filter_param: dict):
         supabase.table("users")
         .select("*")
         .eq(column, value)
+        .limit(1)
         .execute()
     )
     if response.data:

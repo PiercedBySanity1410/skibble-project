@@ -65,9 +65,7 @@ function UserSearch({
           <div className="container">
             <div className="chat-info">
               <Profile
-                src={`${import.meta.env.VITE_API_BASE_URL}/uploads/profile/${
-                  item.avatarUrl
-                }`}
+                src={item.avatarUrl}
                 status={item.isOnline}
               />
               <div className="info-container">

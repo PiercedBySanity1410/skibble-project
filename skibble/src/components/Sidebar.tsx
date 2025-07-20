@@ -18,9 +18,7 @@ function Sidebar() {
         <div className="profile-header">
           <div className="image-wrapper avatar">
             <img
-              src={`${import.meta.env.VITE_API_BASE_URL}/uploads/profile/${
-                store.avatarUrl
-              }`}
+              src={store.avatarUrl}
               alt="Avatar"
             />
           </div>

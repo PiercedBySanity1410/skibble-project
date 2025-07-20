@@ -24,9 +24,7 @@ function Chats() {
             <div className="container">
               <div className="chat-info">
                 <Profile
-                  src={`${import.meta.env.VITE_API_BASE_URL}/uploads/profile/${
-                    store.chats[key].avatarUrl
-                  }`}
+                  src={store.chats[key].avatarUrl}
                   status={store.chats[key].isOnline}
                 />
                 <div className="info-container">
