@@ -70,7 +70,6 @@ function ChatContent() {
   useEffect(() => {
     if (userId == store.userId) navigate("/chat");
     if (store.chats[userId]) {
-      console.log(store.chats[userId]);
       dispatch({ type: "currentChat:update", chat: store.chats[userId] });
     } else {
       (async () => {
@@ -128,7 +127,6 @@ function ChatContent() {
       };
     }
     socket.emit("updateFromLog", updateLog);
-    dispatch(updateLog);
     inputRef.current.value = "";
   };
   return (

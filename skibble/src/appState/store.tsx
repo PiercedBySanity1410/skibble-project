@@ -54,13 +54,6 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     });
     socket.on("updateFromLog", (action: ActionType) => {
       dispatch(action);
-      if (
-        action.type == "chat:message:sender" &&
-        action.senderInfo &&
-        !state.chats[action.senderId]
-      ) {
-        dispatch({ type: "chat:update:add", chat: action.senderInfo });
-      }
     });
     localStorage.setItem(
       state.userId,
