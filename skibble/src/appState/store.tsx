@@ -42,19 +42,28 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     },
   });
 
-  const socket = SocketManager.init(sessionUserJson.accessToken);
+  const socket = SocketManager.init();
 
   useEffect(() => {
     socket.emit("chats:add", {
-      accessToken: sessionUserJson.accessToken,
+      accessToken: state.accessToken,
       list: Object.keys(existingUserData.chats),
     });
-
+    socket.emit("chat:online", {
+      accessToken: state.accessToken,
+    });
     socket.on("updateFromLog", (action: ActionType) => {
       dispatch(action);
+      if (
+        action.type == "chat:message:sender" &&
+        action.senderInfo &&
+        !state.chats[action.senderId]
+      ) {
+        dispatch({ type: "chat:update:add", chat: action.senderInfo });
+      }
     });
     localStorage.setItem(
-      sessionUserJson.userId,
+      state.userId,
       JSON.stringify(existingUserData)
     );
     return () => {

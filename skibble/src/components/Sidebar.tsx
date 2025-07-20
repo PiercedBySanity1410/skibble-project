@@ -26,8 +26,8 @@ function Sidebar() {
           </div>
           <Logout
             onClick={() => {
+              SocketManager.disconnect(store.accessToken);
               localStorage.removeItem("sessionUser");
-              SocketManager.disconnect();
               navigate("/login");
             }}
             size={18}

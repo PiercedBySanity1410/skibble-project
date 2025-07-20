@@ -5,7 +5,7 @@ export interface ChatUser {
   firstName: string;
   lastName: string;
   isOnline: boolean;
-  isTyping: string;
+  isTyping: boolean;
   lastSeen: string;
 }
 export interface StateType {
@@ -38,4 +38,5 @@ export type ActionType =
       senderId: string;
       receiverId: string;
       message: Message;
+      senderInfo?: ChatUser;
     };

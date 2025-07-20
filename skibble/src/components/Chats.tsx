@@ -3,6 +3,7 @@
 // import Mic from "../icons/Mic";
 // import Profile from "./Profile";
 import { useStore } from "../appState/store";
+import { getLastSeenText } from "../pages/ChatContent";
 import Profile from "./Profile";
 import { useNavigate } from "react-router";
 
@@ -33,7 +34,13 @@ function Chats() {
                     {store.chats[key].firstName} {store.chats[key].lastName}
                   </span>
                   <div className="state-wrapper">
-                    <p>typing...</p>
+                    <p>
+                      {store.chats[key].isTyping
+                        ? "typing..."
+                        : store.chats[key].isOnline
+                        ? "online"
+                        : getLastSeenText(store.chats[key].lastSeen)}
+                    </p>
                   </div>
                 </div>
               </div>

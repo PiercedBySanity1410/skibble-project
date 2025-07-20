@@ -13,7 +13,7 @@ import WelcomeScreen from "./Welcome";
 import "../styles/chatcontent.scss";
 import { useNavigate, useParams } from "react-router";
 import { v4 as uuidv4 } from "uuid";
-import type { Message } from "../appState/types";
+import type { ActionType, Message } from "../appState/types";
 export function getLastSeenText(isoTime: string): string {
   if (isoTime == "") return "last seen --";
   const lastSeenDate: Date = new Date(isoTime);
@@ -70,6 +70,7 @@ function ChatContent() {
   useEffect(() => {
     if (userId == store.userId) navigate("/chat");
     if (store.chats[userId]) {
+      console.log(store.chats[userId]);
       dispatch({ type: "currentChat:update", chat: store.chats[userId] });
     } else {
       (async () => {
@@ -106,22 +107,28 @@ function ChatContent() {
       timestamp: new Date().toISOString(),
       deliveryStatus: "sent",
     };
-    if (!store.chats[userId])
-      dispatch({ type: "chat:update:add", chat: store.currentChat });
-    socket.emit("updateFromLog", {
+    var updateLog: ActionType = {
       type: "chat:message:sender",
       messageId: uuidv4(),
       senderId: store.userId,
       receiverId: userId,
       message,
-    });
-    dispatch({
-      type: "chat:message:receiver",
-      messageId: uuidv4(),
-      senderId: store.userId,
-      receiverId: userId,
-      message,
-    });
+    };
+    if (!store.chats[userId]) {
+      dispatch({ type: "chat:update:add", chat: store.currentChat });
+      updateLog["senderInfo"] = {
+        userId: store["userId"],
+        username: store["username"],
+        avatarUrl: store["avatarUrl"],
+        firstName: store["firstName"],
+        lastName: store["lastName"],
+        isOnline: true,
+        isTyping: false,
+        lastSeen: new Date().toISOString(),
+      };
+    }
+    socket.emit("updateFromLog", updateLog);
+    dispatch(updateLog);
     inputRef.current.value = "";
   };
   return (

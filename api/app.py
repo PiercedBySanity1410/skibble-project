@@ -1,3 +1,6 @@
+import eventlet
+# ✅ Use eventlet or gevent for WebSocket support
+eventlet.monkey_patch()
 # Skibble | Chat Application
 from flask import Flask, send_from_directory, abort
 from flask_jwt_extended import JWTManager

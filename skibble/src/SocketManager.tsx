@@ -3,11 +3,10 @@ import { io, Socket } from "socket.io-client";
 class SocketManager {
   private static instance: Socket | null = null;
 
-  static init(accessToken: string): Socket {
+  static init(): Socket {
     if (!this.instance) {
       this.instance = io(import.meta.env.VITE_API_BASE_URL, {
         transports: ["websocket"],
-        query: { accessToken },
       });
     }
     return this.instance;
@@ -17,10 +16,9 @@ class SocketManager {
     return this.instance;
   }
 
-  static disconnect(): void {
+  static disconnect(accessToken: string): void {
     if (this.instance) {
-      this.instance.disconnect();
-      this.instance = null;
+      this.instance.emit("chat:offline", { accessToken });
     }
   }
 }
