@@ -1,1 +1,0 @@
-USER_DB_FILE = 'usersDB.log'

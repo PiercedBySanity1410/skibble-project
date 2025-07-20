@@ -1,11 +1,9 @@
-from flask_socketio import SocketIO, disconnect, emit
+from flask_socketio import SocketIO, emit
 from flask_jwt_extended import decode_token, exceptions as jwt_exceptions
 from flask import request
-import json
-from .config import USER_DB_FILE
-from services.time import get_iso_time
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet", transports=['websocket'])  # ✅ Changed
-
+from utilities import get_iso_time
+from supabase_config import supabase
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet", transports=['websocket'])
 user_id_to_session_id = {}
 session_id_to_user_id = {}
 user_data_update_map = {}
@@ -90,17 +88,15 @@ def handle_explicit_disconnect(message_data):
         for uid in user_data_update_map.get(user_id, []):
             emit('updateFromLog', go_offline_log, to=user_id_to_session_id.get(uid))
         user_id_to_session_id.pop(user_id, None)
-        lines = []
-        with open(USER_DB_FILE, 'r') as file:
-            lines = file.readlines()  # read all lines
-        for i in range(len(lines)):
-            user_json = json.loads(lines[i])
-            if user_json['userId'] != user_id: continue
-            user_json['lastSeen'] = current_time
-            lines[i] = json.dumps(user_json) + '\n'  # update list element
-
-        with open(USER_DB_FILE, 'w') as file:
-            file.writelines(lines)
+        response = (
+            supabase.table("users")
+            .update({"lastSeen":current_time})
+            .eq("userId", user_id)
+            .execute()
+        )
+        if response.data:
+            return True
+        return False
     except jwt_exceptions.JWTDecodeError:
         print("❌ JWT Decode Error: Invalid Token")
         return False
@@ -128,20 +124,12 @@ def handle_disconnect():
             emit('updateFromLog', go_offline_log, to=recipient_sid)
 
     user_id_to_session_id.pop(user_id, None)
-
-    # ✅ Safe file update
-    try:
-        with open(USER_DB_FILE, 'r') as file:
-            lines = file.readlines()
-
-        for i in range(len(lines)):
-            user_json = json.loads(lines[i])
-            if user_json.get('userId') == user_id:
-                user_json['lastSeen'] = current_time
-                lines[i] = json.dumps(user_json) + '\n'
-
-        with open(USER_DB_FILE, 'w') as file:
-            file.writelines(lines)
-
-    except FileNotFoundError:
-        print(f"[Warning] {USER_DB_FILE} not found.")
+    response = (
+        supabase.table("users")
+        .update({"lastSeen":current_time})
+        .eq("userId", user_id)
+        .execute()
+    )
+    if response.data:
+        return True
+    return False
