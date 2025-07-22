@@ -6,8 +6,7 @@ The project aims to provide a seamless real-time experience with secure authenti
 ---
 
 ## 📌 Figma UI Design
-[**Figma Design Link (Add here)**](#)  
-*(Replace `#` with your actual Figma link)*
+[**Figma Design Link (Add here)**](https://www.figma.com/design/2H23khFwLY5eIgwvs6Igi9/Chat-Application?node-id=0-1&t=iWCSrPwICtsTFgbw-1) 
 
 ---
 
