@@ -96,15 +96,6 @@ pip freeze > requirements.txt
 * Authentication & database using **Supabase**
 * Modular, scalable architecture
 * Vite-powered fast frontend development
-
----
-
-## 🛠️ To-Do
-
-* ✅ Add **Figma UI Link** above
-* ☐ Write unit tests
-* ☐ Add deployment instructions
-
 ---
 
 ## 🤝 Contributing
@@ -116,7 +107,3 @@ Pull requests are welcome. Please fork the repo and create a feature branch befo
 ## 📜 License
 
 This project is licensed under the **MIT License** – feel free to modify and distribute.
-
-```
-
----
