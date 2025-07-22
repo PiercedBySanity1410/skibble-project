@@ -14,7 +14,7 @@ The project aims to provide a seamless real-time experience with secure authenti
 
 ### **Frontend (skibble/)**
 - React + Vite + TypeScript
-- Tailwind CSS (if used; check styles)
+- SCSSS
 - ESLint for code linting
 
 ### **Backend (api/)**
@@ -120,8 +120,3 @@ This project is licensed under the **MIT License** – feel free to modify and d
 ```
 
 ---
-
-Do you want me to:  
-✅ **Generate this README.md file inside your project?**  
-✅ **Add a dynamically generated `requirements.txt` for your Flask backend?**  
-✅ **Include a section for API endpoints documentation?**
