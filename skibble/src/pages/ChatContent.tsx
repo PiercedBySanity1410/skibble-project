@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
-import Call from "../icons/Call";
+// import Call from "../icons/Call";
 import Document from "../icons/Document";
 // import Forward from "../icons/Forward";
-import Image from "../icons/Image";
+// import Image from "../icons/Image";
 import Mic from "../icons/Mic";
 import Send from "../icons/Send";
 import Upload from "../icons/Upload";
-import Video from "../icons/Video";
+// import Video from "../icons/Video";
 import SocketManager from "../SocketManager";
 import { useDispatch, useStore } from "../appState/store";
 import WelcomeScreen from "./Welcome";
@@ -58,7 +58,7 @@ export function getLastSeenText(isoTime: string): string {
   }
 }
 
-function ChatContent() {
+function ChatContent({ enable }: { enable: () => void }) {
   const store = useStore();
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -67,6 +67,21 @@ function ChatContent() {
   const inputRef = useRef<HTMLInputElement>(null);
   if (!socket || !userId || !store.accessToken || !store.currentChat)
     return <WelcomeScreen />;
+  useEffect(() => {
+    const handleStorageChange = (event:StorageEvent) => {
+      console.log('Storage changed!');
+      console.log('Key:', event.key);
+      console.log('Old Value:', event.oldValue);
+      console.log('New Value:', event.newValue);
+      console.log('Storage area:', event.storageArea);
+      console.log('URL:', event.url);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
   useEffect(() => {
     if (userId == store.userId) navigate("/chat");
     if (store.chats[userId]) {
@@ -159,10 +174,10 @@ function ChatContent() {
               </div>
             </div>
             <div className="chat-options">
-              <Video size={18} color="var(--grey)" />
+              {/* <Video size={18} color="var(--grey)" />
               <Call size={18} color="var(--grey)" />
-              <Image size={18} color="var(--grey)" />
-              <Document size={18} color="var(--grey)" />
+              <Image size={18} color="var(--grey)" /> */}
+              <Document onClick={enable} size={18} color="var(--grey)" />
             </div>
           </div>
         </div>
@@ -174,10 +189,7 @@ function ChatContent() {
         <div className="message-input-wrapper">
           <div className="message-input">
             <div className="image-wrapper">
-              <img
-                src={store.avatarUrl}
-                alt="Avatar"
-              />
+              <img src={store.avatarUrl} alt="Avatar" />
             </div>
             <input
               ref={inputRef}

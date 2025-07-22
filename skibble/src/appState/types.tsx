@@ -40,3 +40,11 @@ export type ActionType =
       message: Message;
       senderInfo?: ChatUser;
     };
+export type logType = {
+  id: string;
+  userId: string;
+  log: ActionType;
+};
+export type MultiActionType = {
+  unreadLogs: logType[];
+};

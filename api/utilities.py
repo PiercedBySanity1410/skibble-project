@@ -18,7 +18,7 @@ def add_user(username, first, last, hashed_password, avatar_url):
         response = supabase.table("users").insert(user_data).execute()
 
         if response.data:
-            return response.data[0]  # return inserted user
+            return response.data[0]
         return None
 
     except Exception as e:
@@ -38,3 +38,28 @@ def get_user(filter_param: dict):
         return response.data[0]
     return None
     
+def set_log(message_data,receiver_id):
+    try:
+        log_data={
+            "log":message_data,
+            "userId":receiver_id,
+        }
+        response = supabase.table("userlogs").insert(log_data).execute()
+
+        if response.data:
+            return True
+        return False
+
+    except Exception as e:
+        return False
+    
+def get_logs(user_id: str):
+    response = (
+        supabase.table("userlogs")
+        .select("*")
+        .eq("userId", user_id)
+        .execute()
+    )
+    if response.data:
+        return response.data
+    return []

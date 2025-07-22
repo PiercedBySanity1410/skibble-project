@@ -7,14 +7,14 @@ import DocumentFill from "../icons/DocumentFill";
 import ImageFill from "../icons/ImageFill";
 import AudioFill from "../icons/AudioFill";
 import "../styles/documentview.scss";
-export default function DocumentView() {
+export default function DocumentView({ disable }: { disable: () => void }) {
   return (
     <div className="documentview-wrapper">
       <div className="documentview-header">
         <DocumentViewIcon size={18} color="var(--white)" />
         <h4>Chat Details</h4>
         <div className="button-container">
-          <Close size={12} color="var(--grey)" />
+          <Close onClick={disable} size={12} color="var(--grey)" />
         </div>
       </div>
       <div className="accordin-container">

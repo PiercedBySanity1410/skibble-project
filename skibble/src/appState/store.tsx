@@ -7,7 +7,12 @@ import React, {
   useEffect,
 } from "react";
 import { reducer } from "./reducer";
-import { type StateType, type ActionType } from "./types";
+import {
+  type StateType,
+  type ActionType,
+  type MultiActionType,
+  type logType,
+} from "./types";
 import SocketManager from "../SocketManager";
 const StateContext = createContext<StateType | undefined>(undefined);
 const DispatchContext = createContext<Dispatch<ActionType> | undefined>(
@@ -55,12 +60,14 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     socket.on("updateFromLog", (action: ActionType) => {
       dispatch(action);
     });
-    localStorage.setItem(
-      state.userId,
-      JSON.stringify(existingUserData)
-    );
+    socket.on("updateFromLog:unread", (action: MultiActionType) => {
+      action.unreadLogs.forEach((logData: logType) => dispatch(logData.log));
+      socket.emit("updateFromLog:unread:received",{ userId:state.userId});
+    });
+    localStorage.setItem(state.userId, JSON.stringify(existingUserData));
     return () => {
       socket.off("updateFromLog");
+      socket.off("updateFromLog:unread");
     };
   }, []);
 
